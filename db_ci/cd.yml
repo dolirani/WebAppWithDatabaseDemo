@@ -215,7 +215,7 @@ stages:
 
 # scan ARM template using TTK
 
-    - 
+    
         # includeTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
         # skipTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
 
