@@ -170,7 +170,7 @@ stages:
   displayName: Create & Deploy to Dev
   dependsOn: Build_Stage
   variables:
-    azureSubscription: 'WebAppWithDatabaseDemo_spn' # couldn't be referenced
+    azureSubscription: 'Free Trial (99b32c2b-c188-4f3c-94ff-9cb5ed8eb2ee)' # couldn't be referenced
     ResourceGroupName: '$(Prefix)-$(Release.EnvironmentName)-$(UniqueId)-RG'
     Database.Admin: 'houssem'
     Database.Password: '@Aa123456' # to be secured in Key Vault
