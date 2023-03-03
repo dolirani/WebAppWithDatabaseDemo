@@ -98,9 +98,9 @@ stages:
         arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)'
         zipAfterPublish: True
 
-    - task: SonarCloudPublish@1
-      displayName: Publish Quality Gate Result
-      enabled: ${{ parameters.runCompletePipeline }}
+    
+
+    
 
     - task: PublishBuildArtifacts@1
       displayName: Publish Artifact (WebApp.zip)
@@ -126,32 +126,7 @@ stages:
       inputs:
         ArtifactName: dacpac
 
-  - job: Selenium
-    displayName: Build UI Tests
-    pool:
-      vmImage: 'windows-2019'
-      demands: msbuild
-
-    steps:
-    - task: NuGetToolInstaller@0
-      displayName: Use NuGet 4.3.0
-
-    - task: NuGetCommand@2
-      displayName: Restoore NuGet Packages
-      inputs:
-        restoreSolution: WebAppWithDatabase.sln
-
-    - task: MSBuild@1
-      displayName: Build SeleniumUiTests.csproj
-      inputs:
-        solution: SeleniumUiTests/SeleniumUiTests.csproj
-        msbuildArguments: '/p:OutDir=$(Build.ArtifactStagingDirectory)'
-
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: UI-Test'
-      inputs:
-        ArtifactName: ui-tests
-
+  
   - job: Infrastructure
     displayName: Publish Infra files
     pool:
@@ -168,7 +143,7 @@ stages:
   displayName: Create & Deploy to Dev
   dependsOn: Build_Stage
   variables:
-    azureSubscription: 'Free Trial (99b32c2b-c188-4f3c-94ff-9cb5ed8eb2ee)' # couldn't be referenced
+    azureSubscription: 'Azure subscription 1 (73d419e9-f113-4c97-b0be-9c96ca7beb62)' # couldn't be referenced
     ResourceGroupName: 'webappDBDemo-RG'
     Database.Admin: 'houssem'
     Database.Password: '@Aa123456' # to be secured in Key Vault
@@ -199,7 +174,7 @@ stages:
       displayName: Validate ARM templates
       enabled: ${{ parameters.runCompletePipeline }}
       inputs:
-        azureSubscription: 'WebAppWithDatabaseDemo_spn'
+        azureSubscription: 'Azure subscription 1 (73d419e9-f113-4c97-b0be-9c96ca7beb62)'
         action: 'Create Or Update Resource Group'
         resourceGroupName: '$(ResourceGroupName)'
         location: 'West Europe'
@@ -211,11 +186,7 @@ stages:
 
     
 
-# scan ARM template using TTK
-
     
-        # includeTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
-        # skipTests: 'VM Images Should Use Latest Version,Resources Should Have Location'
 
     - task: PublishTestResults@2
       displayName: Publish TTK Test Results
@@ -228,7 +199,7 @@ stages:
       displayName: Preview Template Changes (What-If)
       inputs:
         workingDirectory: $(System.DefaultWorkingDirectory)/arm/
-        azureSubscription: 'WebAppWithDatabaseDemo_spn'
+        azureSubscription: 'Azure subscription 1 (73d419e9-f113-4c97-b0be-9c96ca7beb62)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: 'az deployment group what-if --resource-group $(ResourceGroupName) --name rollout01 --template-file  WebSiteSQLDatabase.json --parameters WebSiteSQLDatabase.parameters.json'
@@ -238,8 +209,8 @@ stages:
       displayName: Deploy ARM templates
       inputs:
         deploymentScope: 'Resource Group'
-        azureResourceManagerConnection: 'WebAppWithDatabaseDemo_spn'
-        subscriptionId: '99b32c2b-c188-4f3c-94ff-9cb5ed8eb2ee'
+        azureResourceManagerConnection: 'Azure subscription 1 (73d419e9-f113-4c97-b0be-9c96ca7beb62)'
+        subscriptionId: '73d419e9-f113-4c97-b0be-9c96ca7beb62'
         action: 'Create Or Update Resource Group'
         resourceGroupName: '$(ResourceGroupName)'
         location: 'West Europe'
@@ -249,7 +220,7 @@ stages:
         overrideParameters: '-hostingPlanName $(hostingPlanName) -skuName "F1" -skuCapacity 1 -administratorLogin $(Database.Admin) -administratorLoginPassword $(Database.Password) -databaseName $(Database.Name) -collation "SQL_Latin1_General_CP1_CI_AS" -edition "Basic" -maxSizeBytes "1073741824" -requestedServiceObjectiveName "Basic" -webSiteName $(WebAppName) -sqlserverName $(SqlServerName)'
         deploymentMode: 'Complete'
 
-    
+   
 
   - job: Deploy_DEV
     displayName: Deploy Apps to DEV
@@ -272,7 +243,7 @@ stages:
     - task: AzureRmWebAppDeployment@3
       displayName: Deploy WebApp to Azure
       inputs:
-        azureSubscription: 'WebAppWithDatabaseDemo_spn'
+        azureSubscription: 'Azure subscription 1 (73d419e9-f113-4c97-b0be-9c96ca7beb62)'
         appType: 'app'
         WebAppName: '$(WebAppName)'
         Package: '$(System.DefaultWorkingDirectory)/drop/WebApp.zip'
@@ -291,7 +262,7 @@ stages:
     - task: SqlAzureDacpacDeployment@1
       displayName: Deploy DacPac to SQL Azure
       inputs:
-        azureSubscription: 'WebAppWithDatabaseDemo_spn'
+        azureSubscription: 'Azure subscription 1 (73d419e9-f113-4c97-b0be-9c96ca7beb62)'
         AuthenticationType: 'server'
         ServerName: '$(SqlServerName).database.windows.net,1433'
         DatabaseName: '$(Database.Name)'
@@ -333,7 +304,6 @@ stages:
         runInParallel: false
         codeCoverageEnabled: true
 
-
 - stage: Test_Stage
   displayName: Test Stage
   jobs:
@@ -353,3 +323,4 @@ stages:
       - task: CmdLine@2
         inputs:
           script: 'ls'
+
